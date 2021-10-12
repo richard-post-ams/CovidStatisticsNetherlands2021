@@ -43,7 +43,7 @@ for country in containers:
                 final_feature = final_feature.replace(",","")
 
                 if final_feature.find('+') != -1:
-                    final_feature = final_feature.replace("+", "")
+                    final_feature = final_feature.replace("+","")
                     final_feature = float(final_feature)
                 elif final_feature.find("-") != -1:
                     final_feature = final_feature.replace("-", "")
@@ -56,19 +56,26 @@ for country in containers:
         country_data.append(final_feature)
 
     all_data.append(country_data)
-df = pd.Dataframe(all_data)
-df.drop([15,16,17], inplace= True, axis =1)
-df.head()
 
-for labels in df.columns:
+df = pd.DataFrame(all_data)
+
+#df.drop([15,16,17], inplace= True, axis =1)
+df.drop([15,16,17,18,19,20], inplace= True, axis =1)
+df.head()
+print(df.head())
+
+for label in df.columns:
     if label != 'Country' and label != "Continent":
-        df[label] = pd.to_numeric(df[label])
+        df[label] = pd.to_numeric(df[label], errors='ignore')
+        #df[label] = pd.to_numeric(df[label])
 
 column_labels = ["Country", "Total Cases", "New Cases", "Total Deaths", "New Deaths", "Total Recovered", "New Recovered", "Active Cases", "Serious/Critical", "Total Cases/1M", "Deaths/1M", "Total Tests", "Test/1M","Population", "Continent"]
 df.columns = column_labels
+
 df["%Inc Cases"] = df["New Cases"]/df["Total Cases"]*100
 df["%Inc Deaths"] = df["New Deaths"]/df["Total Deaths"]*100
 df["%Inc Recovered"] = df["New Recovered"]/df["Total Recovered"]*100
+
 
 
 
