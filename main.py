@@ -1,13 +1,36 @@
-# This project is about statistics regarding Covid in the Netherlands
 
-# For this the following steps are take:
-# Data Collection
-# Data Pre Processing
-# EDA
-# Conclusions
+"""
+Currently I am working with multiple software-(data) teams for a major American
+company in the Netherlands, but not as developer (I am working as a Scrum Master).
+Actually I want to move into (Python/Numpy/Pandas) coding, for Data Science.
+So this is about my journey to move into that area. I realize that I need to
+spend a lot of time to be a good developer.
 
-from bs4 import BeautifulSoup as soup
-from datetime import date, datetime
+A long time ago I have been a developer (Pascal). I am very eager to learn
+Python, Numpy , Pandas, Spark. I have spend already a lot of time to learn it
+on CodeCademy, so now it's time to bring my learnings into practice.
+
+This project is about statistics regarding Covid in the Netherlands.
+To learn fast and to share my knowledge I added as much comments as possible.
+The program will pull live Covid-19 data via web-scraping.
+There are a lot of numbers available from many countries. In this project
+I generate relevant Covid-19 graphs focusing on the Netherlands, to Visual
+analyse in a realtime way how we are doing at this moment in the Netherlands.
+While creating the graphs I will have more ideas on exactly what I would
+like to analyse. This project will evolve while working on it.
+
+For this project the following steps are take:
+Data Collection (acquiring correct data at right time)
+Data Pre Processing
+EDA (Exploratory Data Analysis)
+Conclusions (did the analysis answer our questions, was there a limitation
+in our analysis which could affect our conclusion, was analysis sufficient
+enough in decision making)
+"""
+
+from bs4 import BeautifulSoup as soup #used to webscrape data from Worldometers
+from datetime import date, datetime #we want to show user that we are updating
+#data at a particular time
 from urllib.request import Request, urlopen
 import pandas as pd
 import numpy as np
@@ -22,64 +45,79 @@ import warnings
 warnings.filterwarnings("ignore")
 from pandas_profiling import ProfileReport
 
-
-
-today = datetime.now()
+today = datetime.now() #to get the previous day data, which is the complete dataset
 yesterday_str = "%s %d,%d" %(date.today().strftime("%b"), today.day-1, today.year)
+#for debugging: 'print(yesterday_str)' should print the date of yesterday
 
+#Let's do some webscraping
 url = "https://www.worldometers.info/coronavirus/#countries"
 req = Request(url, headers={'User-Agent':"Mozilla/5.0"})
 webpage = urlopen(req)
-page_soup = soup(webpage, "html.parser")
+page_soup = soup(webpage, "html.parser") #pass http response to beautifulsoup
+#for debugging: 'print(page_soup)' will show you the complete webpage.
 
+#we don't want the complete data for the webpage, but only the specific table
+#with country data. Just check for the tablename in the Webpage (view as source)
 table = page_soup.findAll("table",{"id": "main_table_countries_yesterday"})
 
+#Grab the title bar [0] of the table and assign it to variable containers
+#if you use [1] it will grab the row below that
 containers = table[0].findAll("tr",{"style":""})
 title = containers[0]
 
 del containers[0]
+#Create empty list all_data which will hold all of its table data
 all_data = []
 clean = True
 
 for country in containers:
-    country_data = []
-    country_container = country.findAll("td")
+    country_data = [] #temp store the country data in this list
+    country_container = country.findAll("td") #country_container provides the
+    #list of components present in that country. e.g. if you take country_container
+    #India then we will have all the values with respect of India, presented as
+    #a list
 
     if country_container[1].text == "China":
         continue
     for i in range(1, len(country_container)):
-        final_feature = country_container[i].text
-        if clean :
+        final_feature = country_container[i].text #i = index
+        if clean : #clean is initially defined as True
             if i != 1 and i != len(country_container)-1:
-                final_feature = final_feature.replace(",","")
+                #clean our data a bit
+                final_feature = final_feature.replace(",","") #replacing , with empty space
 
                 if final_feature.find('+') != -1:
-                    final_feature = final_feature.replace("+","")
+                    final_feature = final_feature.replace("+","") #replacing + with empty space
                     final_feature = float(final_feature)
                 elif final_feature.find("-") != -1:
-                    final_feature = final_feature.replace("-", "")
+                    final_feature = final_feature.replace("-", "") #replacing - with empty space
                     final_feature = float(final_feature)*-1
-        if final_feature == 'N/A':
+        if final_feature == 'N/A': #if missing data (N/A)
             final_feature = 0
-        elif final_feature == "" or final_feature == " ":
+        elif final_feature == "" or final_feature == " ": #if empty space or space
+            #replace with -1
             final_feature = -1
 
-        country_data.append(final_feature)
+        country_data.append(final_feature) #add cleaned final_feature data to
+        #the list country_data
 
-    all_data.append(country_data)
-
+    all_data.append(country_data) #once out of the for loop all country_data will
+    #be added to the list all_data
+#for debug: 'print all_data()' should print data for all countries as a list
+#now let's put the data in a form of a DataFrame, using Pandas.
 df = pd.DataFrame(all_data)
 
-#df.drop([15,16,17], inplace= True, axis =1)
 df.drop([15,16,17,18,19,20], inplace= True, axis =1)
 df.head()
-print(df.head())
+#For debugging: 'print(df.head())' should list the data in table form
 
 for label in df.columns:
     if label != 'Country' and label != "Continent":
         df[label] = pd.to_numeric(df[label], errors='ignore')
         #df[label] = pd.to_numeric(df[label])
 
+#best way to get the column names is to scrape them with a for loop.
+#but for now I hardcode them (sorry.... :-))
 column_labels = ["Country", "Total Cases", "New Cases", "Total Deaths", "New Deaths", "Total Recovered", "New Recovered", "Active Cases", "Serious/Critical", "Total Cases/1M", "Deaths/1M", "Total Tests", "Test/1M","Population", "Continent"]
 df.columns = column_labels
 
@@ -135,7 +173,7 @@ recovered_list = ["Total Recovered", "New Recovered", "%Inc Recovered"]
 print (continent_df)
 continent_visualization(cases_list)
 
-# PLOT PER COUNTRIES
+# PLOT PER COUNTRY
 df = df.drop([len(df)-1])
 country_df = df.drop([0])
 # print(country_df)
