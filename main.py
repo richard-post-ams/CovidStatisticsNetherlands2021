@@ -12,8 +12,9 @@ So this is about my journey to move into that area. I realize that I need to
 spend a lot of time to be a good developer.
 
 A long time ago I have been a developer (Pascal). I am very eager to learn
-Python, Numpy , Pandas, Spark. I have spend already a lot of time to learn it
-on CodeCademy, so now it's time to bring my learnings into practice.
+Python, Numpy , Pandas, Spark. I have spend already a lot of time to learn
+Python/Numpy/Pandas via CodeCademy, so now it's time to bring my learnings into
+practice.
 
 This project is about statistics regarding Covid in the Netherlands.
 To learn fast and to share my knowledge I added as much comments as possible.
