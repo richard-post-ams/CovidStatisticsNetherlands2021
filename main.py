@@ -57,9 +57,9 @@ today = datetime.now() #to get the previous day data, which is the complete data
 yesterday_str = "%s %d,%d" %(date.today().strftime("%b"), today.day-1, today.year)
 #for debugging: 'print(yesterday_str)' should print the date of yesterday
 
-#===============================
+#==============================================================
 #WEBSCRAPING
-#===============================
+#==============================================================
 
 url = "https://www.worldometers.info/coronavirus/#countries"
 req = Request(url, headers={'User-Agent':"Mozilla/5.0"})
@@ -146,9 +146,9 @@ df["%Inc Cases"] = df["New Cases"]/df["Total Cases"]*100
 df["%Inc Deaths"] = df["New Deaths"]/df["Total Deaths"]*100
 df["%Inc Recovered"] = df["New Recovered"]/df["Total Recovered"]*100
 
-#===============================
+#==============================================================
 #EDA (Exploratory Data Analysis)
-#===============================
+#==============================================================
 
 """
 #we use a DataFrame because we want to pick values, we use loc[0] because we need
@@ -183,28 +183,45 @@ per_df.columns = ["Percentage"]
 fig = go.Figure()
 fig.add_trace(go.Bar(x=per_df.index, y = per_df['Percentage'],
                      marker_color = ["Yellow", "blue", "red"]))
-fig.show()
+# Hide for now, just uncomment to see the bar-charts
+# fig.show()
 
 # use bar-graph, and pass dataset cases, x-axis, y-axis and color, and show "total"
 # when hovering over graph
 fig = px.bar(cases_df, x = "Virus", y = "Percentage", color = "Type",
              hover_data=["Total"])
-fig.show()
+# Hide for now, just uncomment to see the bar-charts
+# fig.show()
 
-#===============================
+
+#==============================================================
 # PLOT PER CONTINENT
-#===============================
-continent_df = df.groupby("Continent").sum().drop("All")
-continent_df = continent_df.reset_index()
-#print(continent_df)
+#==============================================================
 
+# Create a DataFrame Continent, get the continents which are same by
+# name(groupby) and sum the rows.
+continent_df = df.groupby("Continent").sum().drop("All")
+# Generate an index while plotting
+continent_df = continent_df.reset_index()
+# for debugging 'print(continent_df)'
+
+
+#=============================================================
+# FUNCTION WHICH RECEIVES LIST OF DATA AND CREATE THE OUTPUT
+#=============================================================
+
+# vis_list = list of data which need to be visualized
 def continent_visualization(vis_list):
     for label in vis_list:
+        # take the column 'Continent' and 'label'
         c_df = continent_df[['Continent', label]]
+        # calculate percentage and do rounding. Label(data) could be any columnn.
         c_df['Percentage'] = np.round(100*c_df[label]/ np.sum(c_df[label]), 2)
         c_df['Virus'] = ["COVID-19" for i in range (len(c_df))]
+        # here we define also the (6) different colours for the Continent
         fig = px.bar(c_df, x="Virus", y="Percentage", color="Continent",
                      hover_data=[label])
+        # Show label in Title
         fig.update_layout(title={"text":f"{label}"})
         fig.show()
         gc.collect()
@@ -217,27 +234,42 @@ recovered_list = ["Total Recovered", "New Recovered", "%Inc Recovered"]
 print (continent_df)
 continent_visualization(cases_list)
 
-#===============================
+#==============================================================
 # PLOT PER COUNTRY
-#===============================
+#==============================================================
 
+# create a new DataFrame
 df = df.drop([len(df)-1])
+# we don't want the first row (which are stats for 'World')
 country_df = df.drop([0])
-# print(country_df)
+# for debugging: 'print(country_df)'
+# Variable 'LOOK_AT' represents how many top countries you want to look at
 LOOK_AT = 5
+# create a DF and look into top 5 countries affected with Covid
+# we take it from 1 since we don't need the country-names
 country = country_df.columns[1:14]
 fig = go.Figure()
 c=0
 for i in country_df.index:
     if c < LOOK_AT:
+        # loop through the top country index till a max of LOOK_AT
         fig.add_trace(go.Bar(name = country_df['Country'][i], x = country,
                              y = country_df.loc[i][1:14]))
     else:
         break
     c += 1
+# for yaxis_type we use "log" since we want to normalize data instead of having
+# numerical data (coverting into log), otherwise we will miss some
+# visual data on our chart
 fig.update_layout(title = {"text":f'top {LOOK_AT} countries affected'},
                   yaxis_type = "log")
 fig.show()
+
+#==============================================================
+# SPECIFIC ANALYSIS FOR THE NETHERLANDS
+#==============================================================
+
+# To come.......
 
 
 
