@@ -57,6 +57,9 @@ today = datetime.now() #to get the previous day data, which is the complete data
 yesterday_str = "%s %d,%d" %(date.today().strftime("%b"), today.day-1, today.year)
 #for debugging: 'print(yesterday_str)' should print the date of yesterday
 
+#Make sure all columns are printed for the columns and not showing...
+pd.set_option("display.max_rows", None, "display.max_columns", None)
+
 #==============================================================
 #WEBSCRAPING
 #==============================================================
@@ -122,6 +125,7 @@ df = pd.DataFrame(all_data)
 #Remove columns with missing or incomplete data
 df.drop([15,16,17,18,19,20], inplace= True, axis =1)
 #For debugging: 'print(df.head())' should list the data in table form
+
 df.head()
 
 #Convert everything to numeric, except for Country and Continent
@@ -140,6 +144,9 @@ column_labels = ["Country", "Total Cases", "New Cases", "Total Deaths",
 
 #Show titles on top of our columns
 df.columns = column_labels
+
+#For Debugging:
+# print(df)
 
 #with Pandas Dataframes its very simple to calculate in table columns and rows
 df["%Inc Cases"] = df["New Cases"]/df["Total Cases"]*100
@@ -215,7 +222,7 @@ def continent_visualization(vis_list):
     for label in vis_list:
         # take the column 'Continent' and 'label'
         c_df = continent_df[['Continent', label]]
-        # calculate percentage and do rounding. Label(data) could be any columnn.
+        # calculate percentage and do rounding. Label(data) could be any column.
         c_df['Percentage'] = np.round(100*c_df[label]/ np.sum(c_df[label]), 2)
         c_df['Virus'] = ["COVID-19" for i in range (len(c_df))]
         # here we define also the (6) different colours for the Continent
@@ -231,11 +238,11 @@ cases_list = ["Total Cases", "Active Cases", "New Cases", "Serious/Critical",
 deaths_list = ["Total Deaths", "New Deaths", ""]
 recovered_list = ["Total Recovered", "New Recovered", "%Inc Recovered"]
 
-print (continent_df)
+# For debugging: 'print (continent_df)'
 continent_visualization(cases_list)
 
 #==============================================================
-# PLOT PER COUNTRY
+# PLOT PER COUNTRY (TOP 5)
 #==============================================================
 
 # create a new DataFrame
@@ -259,34 +266,91 @@ for i in country_df.index:
         break
     c += 1
 # for yaxis_type we use "log" since we want to normalize data instead of having
-# numerical data (coverting into log), otherwise we will miss some
+# numerical data (converting into log), otherwise we will miss some
 # visual data on our chart
 fig.update_layout(title = {"text":f'top {LOOK_AT} countries affected'},
                   yaxis_type = "log")
 fig.show()
 
+
 #==============================================================
-# SPECIFIC ANALYSIS FOR THE NETHERLANDS
+# PLOT PER COUNTRY (INCLUDING NETHERLANDS IN THE LIST)
 #==============================================================
 
-# To come.......
+# create a new DataFrame
+df = df.drop([len(df)-1])
+# we don't want the first row (which are stats for 'World')
+country_df = df.drop([0])
+# for debugging: 'print(country_df)'
+# Variable 'LOOK_AT' represents how many top countries you want to look at
+LOOK_AT = 5
+# create a DF and look into top 5 countries affected with Covid
+# we take it from 1 since we don't need the country-names
+country = country_df.columns[1:14]
+fig = go.Figure()
+c=0
+
+# Find the Netherlands
+for i in country_df.index:
+    if country_df['Country'][i] == "Netherlands":
+        #print("Netherlands")
+        #print(i)
+        newi = i
+        break
+
+for i in country_df.index:
+    if c < newi:
+        # loop through the top country index till a max of LOOK_AT
+        fig.add_trace(go.Bar(name = country_df['Country'][i], x = country,
+                             y = country_df.loc[i][1:14]))
+    else:
+        break
+    c += 1
+# for yaxis_type we use "log" since we want to normalize data instead of having
+# numerical data (coverting into log), otherwise we will miss some
+# visual data on our chart
+fig.update_layout(title = {"text":f'top {newi} countries affected'},
+                  yaxis_type = "log")
+fig.show()
 
 
+#==============================================================
+# SPECIFIC ANALYSIS FOR THE NETHERLANDS (EXPERIMENT)
+#==============================================================
+# create a new DataFrame
+df = df.drop([len(df)-1])
+# we don't want the first row (which are stats for 'World')
+country_df = df.drop([0])
+# for debugging: 'print(country_df)'
+# Variable 'LOOK_AT' represents how many top countries you want to look at
+# LOOK_AT = 5
+# create a DF and look into top 5 countries affected with Covid
+# we take it from 1 since we don't need the country-names
+country = country_df.columns[1:14]
+fig = go.Figure()
+c=0
+
+# Find the Netherlands
+for i in country_df.index:
+    if country_df['Country'][i] == "Netherlands":
+        #print("Netherlands")
+        #print(i)
+        newi = i
+        break
 
 
+#Show bar-graph for the Netherlands
+fig.add_trace(go.Bar(name = country_df['Country'][newi], x = country,
+                             y = country_df.loc[newi][1:14]))
 
 
+# Find out how to show the name of the country
+#fig.update_layout(title = {"text":f'Stats for {country_df.loc[newi]}'},
+#                  yaxis_type = "log")
 
+#For now hardcode it
+# Show Country on top of the graph
+fig.update_layout(title = {"text":f'Stats for the Netherlands'},
+                  yaxis_type = "log")
 
-
-
-
-
-
-
-
-
-
-
-
-
+fig.show()
