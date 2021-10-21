@@ -191,14 +191,14 @@ fig = go.Figure()
 fig.add_trace(go.Bar(x=per_df.index, y = per_df['Percentage'],
                      marker_color = ["Yellow", "blue", "red"]))
 # Hide for now, just uncomment to see the bar-charts
-# fig.show()
+#fig.show()
 
 # use bar-graph, and pass dataset cases, x-axis, y-axis and color, and show "total"
 # when hovering over graph
 fig = px.bar(cases_df, x = "Virus", y = "Percentage", color = "Type",
              hover_data=["Total"])
 # Hide for now, just uncomment to see the bar-charts
-# fig.show()
+#fig.show()
 
 
 #==============================================================
@@ -239,10 +239,10 @@ deaths_list = ["Total Deaths", "New Deaths", ""]
 recovered_list = ["Total Recovered", "New Recovered", "%Inc Recovered"]
 
 # For debugging: 'print (continent_df)'
-continent_visualization(cases_list)
+# continent_visualization(cases_list)
 
 #==============================================================
-# PLOT PER COUNTRY (TOP 5)
+# PLOT PER COUNTRY TOTAL CASES (TOP 5) + The Netherlands (if not in top 5)
 #==============================================================
 
 # create a new DataFrame
@@ -250,6 +250,13 @@ df = df.drop([len(df)-1])
 # we don't want the first row (which are stats for 'World')
 country_df = df.drop([0])
 # for debugging: 'print(country_df)'
+
+# Find the Netherlands
+for i in country_df.index:
+    if country_df['Country'][i] == "Netherlands":
+        index_Netherlands = i
+        break
+
 # Variable 'LOOK_AT' represents how many top countries you want to look at
 LOOK_AT = 5
 # create a DF and look into top 5 countries affected with Covid
@@ -265,14 +272,77 @@ for i in country_df.index:
     else:
         break
     c += 1
+#Adding the Netherlands to Top 5 countries (only if current position = > 5)
+if index_Netherlands > LOOK_AT:
+    fig.add_trace(go.Bar(name=country_df['Country'][index_Netherlands], x=country,
+                     y=country_df.loc[index_Netherlands][1:14]))
+
 # for yaxis_type we use "log" since we want to normalize data instead of having
 # numerical data (converting into log), otherwise we will miss some
 # visual data on our chart
-fig.update_layout(title = {"text":f'top {LOOK_AT} countries affected'},
+
+fig.update_layout(title = {"text":f'Top {LOOK_AT} countries affected (COUNTRIES'
+                                  f' SORTED BY'
+                                  f' TOTAL CASES)'
+                                  f' + '
+                                  f'the Netherlands (Ranked at position '
+                                  f'{index_Netherlands}), NOTE: "New" are '
+                                  f'numbers of {yesterday_str} (Yesterday)'},
                   yaxis_type = "log")
 fig.show()
 
+#==============================================================
+# PLOT PER COUNTRY NEW DEATHS (TOP 5) + The Netherlands (if not in top 5)
+#==============================================================
 
+# create a new DataFrame
+df = df.drop([len(df)-1])
+# we don't want the first row (which are stats for 'World')
+country_df = df.drop([0])
+# for debugging: 'print(country_df)'
+new_sorted = country_df.sort_values(by='New Deaths', ascending = False)
+print(new_sorted)
+# Variable 'LOOK_AT' represents how many top countries you want to look at
+LOOK_AT = 5
+# create a DF and look into top 5 countries affected with Covid
+# we take it from 1 since we don't need the country-names
+country = new_sorted.columns[1:14]
+fig = go.Figure()
+c=0
+for i in new_sorted.index:
+    if c < LOOK_AT:
+        # loop through the top country index till a max of LOOK_AT
+        fig.add_trace(go.Bar(name = country_df['Country'][i], x = country,
+                             y = country_df.loc[i][1:14]))
+    else:
+        break
+    c += 1
+#Adding the Netherlands to Top 5 countries (only if current position = > 5)
+if index_Netherlands > LOOK_AT:
+    fig.add_trace(go.Bar(name=country_df['Country'][index_Netherlands], x=country,
+                     y=country_df.loc[index_Netherlands][1:14]))
+
+# for yaxis_type we use "log" since we want to normalize data instead of having
+# numerical data (converting into log), otherwise we will miss some
+# visual data on our chart
+
+# Find the Netherlands
+count = 0
+for i in new_sorted.index:
+    if new_sorted['Country'][i] == "Netherlands":
+        index_Netherlands_Deaths = count
+        break
+    count += 1
+
+fig.update_layout(title = {"text":f'Top {LOOK_AT} countries affected (COUNTRIES'
+                                  f' SORTED BY '
+                                  f'NEW DEATHS)'
+                                  f' + '
+                                  f'the Netherlands (Ranked at position '
+                                  f'{index_Netherlands_Deaths}), NOTE: "New" are '
+                                  f'numbers of {yesterday_str} (Yesterday)'},
+                  yaxis_type = "log")
+fig.show()
 #==============================================================
 # PLOT PER COUNTRY (INCLUDING NETHERLANDS IN THE LIST)
 #==============================================================
@@ -290,16 +360,8 @@ country = country_df.columns[1:14]
 fig = go.Figure()
 c=0
 
-# Find the Netherlands
 for i in country_df.index:
-    if country_df['Country'][i] == "Netherlands":
-        #print("Netherlands")
-        #print(i)
-        newi = i
-        break
-
-for i in country_df.index:
-    if c < newi:
+    if c < index_Netherlands:
         # loop through the top country index till a max of LOOK_AT
         fig.add_trace(go.Bar(name = country_df['Country'][i], x = country,
                              y = country_df.loc[i][1:14]))
@@ -307,11 +369,11 @@ for i in country_df.index:
         break
     c += 1
 # for yaxis_type we use "log" since we want to normalize data instead of having
-# numerical data (coverting into log), otherwise we will miss some
+# numerical data (converting into log), otherwise we will miss some
 # visual data on our chart
-fig.update_layout(title = {"text":f'top {newi} countries affected'},
+fig.update_layout(title = {"text":f'top {index_Netherlands} countries affected'},
                   yaxis_type = "log")
-fig.show()
+#fig.show()
 
 
 #==============================================================
@@ -330,27 +392,19 @@ country = country_df.columns[1:14]
 fig = go.Figure()
 c=0
 
-# Find the Netherlands
-for i in country_df.index:
-    if country_df['Country'][i] == "Netherlands":
-        #print("Netherlands")
-        #print(i)
-        newi = i
-        break
-
-
 #Show bar-graph for the Netherlands
-fig.add_trace(go.Bar(name = country_df['Country'][newi], x = country,
-                             y = country_df.loc[newi][1:14]))
+fig.add_trace(go.Bar(name = country_df['Country'][index_Netherlands], x = country,
+                     y =country_df.loc[index_Netherlands][1:14]))
 
-
-# Find out how to show the name of the country
-#fig.update_layout(title = {"text":f'Stats for {country_df.loc[newi]}'},
-#                  yaxis_type = "log")
-
-#For now hardcode it
 # Show Country on top of the graph
-fig.update_layout(title = {"text":f'Stats for the Netherlands'},
+fig.update_layout(title = {"text":f'Stats for the Netherlands, '
+                                  f'NOTE: "New" are numbers of {yesterday_str}'},
                   yaxis_type = "log")
 
 fig.show()
+
+#fig.add_trace(go.Scatter(name = country_df['Country'][index_Netherlands], x = country,
+#                     y =country_df.loc[index_Netherlands][1:14]))
+
+
+#fig.show()
