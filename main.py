@@ -281,12 +281,11 @@ if index_Netherlands > LOOK_AT:
 # numerical data (converting into log), otherwise we will miss some
 # visual data on our chart
 
-fig.update_layout(title = {"text":f'Top {LOOK_AT} countries affected (COUNTRIES'
-                                  f' SORTED BY'
-                                  f' TOTAL CASES)'
+fig.update_layout(title = {"text":f'Top {LOOK_AT} COVID affected countries'
+                                  f'(countries sorted by Total cases)'
                                   f' + '
                                   f'the Netherlands (Ranked at position '
-                                  f'{index_Netherlands}), NOTE: "New" are '
+                                  f'{index_Netherlands}), "New" are '
                                   f'numbers of {yesterday_str} (Yesterday)'},
                   yaxis_type = "log")
 fig.show()
@@ -330,16 +329,15 @@ if index_Netherlands > LOOK_AT:
 count = 0
 for i in new_sorted.index:
     if new_sorted['Country'][i] == "Netherlands":
-        index_Netherlands_Deaths = count
+        index_Netherlands_Deaths = count +1
         break
     count += 1
 
-fig.update_layout(title = {"text":f'Top {LOOK_AT} countries affected (COUNTRIES'
-                                  f' SORTED BY '
-                                  f'NEW DEATHS)'
+fig.update_layout(title = {"text":f'Top {LOOK_AT} COVID affected countries '
+                                  f'(countries sorted by New Deaths)'
                                   f' + '
                                   f'the Netherlands (Ranked at position '
-                                  f'{index_Netherlands_Deaths}), NOTE: "New" are '
+                                  f'{index_Netherlands_Deaths}), "New" are '
                                   f'numbers of {yesterday_str} (Yesterday)'},
                   yaxis_type = "log")
 fig.show()
@@ -397,11 +395,12 @@ fig.add_trace(go.Bar(name = country_df['Country'][index_Netherlands], x = countr
                      y =country_df.loc[index_Netherlands][1:14]))
 
 # Show Country on top of the graph
-fig.update_layout(title = {"text":f'Stats for the Netherlands, '
+fig.update_layout(width=700, height=500, bargap=0.05, title = {"text":f'Stats for the Netherlands, '
                                   f'NOTE: "New" are numbers of {yesterday_str}'},
                   yaxis_type = "log")
 
 fig.show()
+
 
 #fig.add_trace(go.Scatter(name = country_df['Country'][index_Netherlands], x = country,
 #                     y =country_df.loc[index_Netherlands][1:14]))
