@@ -18,7 +18,7 @@ There are a lot of numbers available from many countries. In this project
 I generate relevant Covid-19 graphs focusing on the Netherlands, to Visual
 analyse in a realtime way how we are doing at this moment in the Netherlands.
 
-Note July 2023: TheNetherlands is nort part of tha stats anymore, see my earlier notes.
+Note July 2023: TheNetherlands is nort part of tha stats anymore, since we have minor Covid cases in The Netherlands in July 2023.
 
 While creating the graphs I will have more ideas on exactly what I would
 like to analyse. This project will evolve while working on it.
