@@ -5,6 +5,10 @@ Numpy version: 1.21.2
 Pandas version: 1.3.3
 Programmed by Richard Post
 
+Note: code/libraries updated July 24th: multiple libraries did not work anymore and I deleted The Netherlands
+from the stats, since we have minor Covid cases in The Netherlands in July 2023.
+---
+
 Currently I am working with multiple software-(data) teams for a major American
 company in the Netherlands, but not as developer (I am working as a Scrum Master).
 Actually I want to move into (Python/Numpy/Pandas) coding, for Data Science.
@@ -22,10 +26,13 @@ The program will pull live Covid-19 data via web-scraping.
 There are a lot of numbers available from many countries. In this project
 I generate relevant Covid-19 graphs focusing on the Netherlands, to Visual
 analyse in a realtime way how we are doing at this moment in the Netherlands.
+
+Note July 2023: TheNetherlands is nort part of tha stats anymore, see my earlier notes.
+
 While creating the graphs I will have more ideas on exactly what I would
 like to analyse. This project will evolve while working on it.
 
-For this project the following steps are take:
+For this project the following steps are taken:
 Data Collection (acquiring correct data at right time)
 Data Pre Processing
 EDA (Exploratory Data Analysis)
@@ -50,7 +57,7 @@ import seaborn as sns
 import gc
 import warnings
 warnings.filterwarnings("ignore")
-from pandas_profiling import ProfileReport
+from ydata_profiling import ProfileReport
 
 
 today = datetime.now() #to get the previous day data, which is the complete dataset
@@ -273,9 +280,9 @@ for i in country_df.index:
         break
     c += 1
 #Adding the Netherlands to Top 5 countries (only if current position = > 5)
-if index_Netherlands > LOOK_AT:
-    fig.add_trace(go.Bar(name=country_df['Country'][index_Netherlands], x=country,
-                     y=country_df.loc[index_Netherlands][1:14]))
+#if index_Netherlands > LOOK_AT:
+#    fig.add_trace(go.Bar(name=country_df['Country'][index_Netherlands], x=country,
+ #                    y=country_df.loc[index_Netherlands][1:14]))
 
 # for yaxis_type we use "log" since we want to normalize data instead of having
 # numerical data (converting into log), otherwise we will miss some
@@ -283,10 +290,11 @@ if index_Netherlands > LOOK_AT:
 
 fig.update_layout(title = {"text":f'Top {LOOK_AT} COVID affected countries'
                                   f'(countries sorted by Total cases)'
-                                  f' + '
-                                  f'the Netherlands (Ranked at position '
-                                  f'{index_Netherlands}), "New" are '
-                                  f'numbers of {yesterday_str} (Yesterday)'},
+                                  #f' + '
+                                  #f'the Netherlands (Ranked at position '
+                                  #f'{index_Netherlands}), "New" are '
+                                  #f'numbers of {yesterday_str} (Yesterday)'},
+                           },
                   yaxis_type = "log")
 fig.show()
 
